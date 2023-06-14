@@ -55,7 +55,7 @@ jobs:
         - name: Login via Az module
           uses: azure/login@v1
           with:
-            client-id: 58f92744-59c1-4018-bd8c-f8ecd4b5fbff
+            client-id: 41b98ca7-cb44-4ba9-94c8-626f0c4520d9
             tenant-id: 6b0fb9b7-cf73-4de0-9b89-edaafff99bdb
             subscription-id: 7839ec0e-450a-44a7-baae-0c8f5fdd8a46
             enable-AzPSSession: true 
