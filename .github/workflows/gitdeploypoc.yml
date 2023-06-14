@@ -1,40 +1,41 @@
-# This is a basic workflow to help you deploy an ADF ARM template to a higher environment
-
-# For more information on GitHub Actions for Azure: https://github.com/Azure/Actions
-# For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
-
 on:
   push:
     branches:
-      - none
-  workflow_dispatch:
+    - none
 
+permissions:
+      id-token: write
+      contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: 'This deploys to QA'
     steps:
-    - uses: actions/checkout@v3
 
-    - name: Azure Login
-      uses: Azure/login@v1.4.3
+    - uses: actions/checkout@v3
+# Installs Node and the npm packages saved in your package.json file in the build
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3.4.1
       with:
-        # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
-        creds: ${{secrets.AZURE_CREDENTIALS}}
+        node-version: 14.x
         
-    - name: Deploy Azure Resource Manager (ARM) Template
-      uses: Azure/arm-deploy@v1.0.6
+    - name: install ADF Utilities package
+      run: npm install
+      working-directory: ${{github.workspace}}/build  # (1) provide the folder location of the package.json file
+        
+# Validates all of the Data Factory resources in the repository. You'll get the same validation errors as when "Validate All" is selected.
+    - name: Validate
+      run: npm run build validate ${{github.workspace}}/ /subscriptions/7839ec0e-450a-44a7-baae-0c8f5fdd8a46/resourceGroups/rg-pipelinepoc-dev/providers/Microsoft.DataFactory/factories/adf-pipelinedeploy-dev # (2) The validate command needs the root folder location of your repository where all the objects are stored. And the 2nd parameter is the resourceID of the ADF instance 
+      working-directory: ${{github.workspace}}/build
+ 
+
+    - name: Validate and Generate ARM template
+      run: npm run build export ${{github.workspace}}/ /subscriptions/7839ec0e-450a-44a7-baae-0c8f5fdd8a46/resourceGroups/rg-pipelinepoc-dev/providers/Microsoft.DataFactory/factories/adf-pipelinedeploy-dev "ExportedArmTemplate"  # (3) The build command, as validate, needs the root folder location of your repository where all the objects are stored. And the 2nd parameter is the resourceID of the ADF instance. The 3rd parameter is the exported ARM template artifact name 
+      working-directory: ${{github.workspace}}/build
+ 
+# In order to leverage the artifact in another job, we need to upload it with the upload action 
+    - name: upload artifact
+      uses: actions/upload-artifact@v3
       with:
-        # Provide the scope of the deployment. Valid values are: 'resourcegroup', 'managementgroup', 'subscription'
-        scope: 'resourcegroup'
-        # Target resource group of the deployment.
-        resourceGroupName: 'rg-pipelinepoc-qa' #MUDAR
-        # Specify the path to the ADF ARM template. In this scenario, the workflow is in the same branch, 
-        # hence we only add the folder and arm template name to the path
-        template: ./build/ARMTemplateForFactory.json
-        # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
-        deploymentMode: Incremental
-        # Supply deployment parameter values. In this simple scenario, 
-        # I am only passing the name of the target ADF to which this is being deployed
-        parameters: factoryName=git-adf-pipelinedeploy-qa
+        name: ExportedArmTemplate # (4) use the same artifact name you used in the previous export step
+        path: ${{github.workspace}}/build/ArmTemplateNew
