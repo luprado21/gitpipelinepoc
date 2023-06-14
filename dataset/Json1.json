@@ -1,0 +1,58 @@
+{
+	"name": "Json1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "test_json.json",
+				"container": "folder1"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"age": {
+					"type": "integer"
+				},
+				"email": {
+					"type": "string"
+				},
+				"address": {
+					"type": "object",
+					"properties": {
+						"street": {
+							"type": "string"
+						},
+						"city": {
+							"type": "string"
+						},
+						"state": {
+							"type": "string"
+						},
+						"zipcode": {
+							"type": "string"
+						}
+					}
+				},
+				"interests": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"isStudent": {
+					"type": "boolean"
+				}
+			}
+		}
+	}
+}
