@@ -1,0 +1,9 @@
+{
+	"name": "git-adf-pipelinedeploy-dev",
+	"location": "westeurope",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "3312210e-cf50-4cad-b683-231bd2741704",
+		"tenantId": "6b0fb9b7-cf73-4de0-9b89-edaafff99bdb"
+	}
+}
